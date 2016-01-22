@@ -35,8 +35,10 @@
 					        <ul class="list-inline">
 					        	<!--Outputs the timestap it was created of the $status object creation time || WHAT IS diffForHumans?-->
 					            <li><?php echo e($status->created_at->diffForHumans()); ?></li>
-					            <li><a href="#">Like</a></li>
+					            <?php if($status->user->id !== AUTH::user()->id): ?>
+					            <li><a href="<?php echo e(route('status.like', ['statusId' => $status->id])); ?>">Like</a></li>
 					            <li>10 likes</li>
+					            <?php endif; ?>
 					        </ul>
 					 		
 					 		<?php foreach($status->replies as $reply): ?>
@@ -49,8 +51,10 @@
 						                <p><?php echo e($reply->body); ?></p>
 						                <ul class="list-inline">
 						                    <li><?php echo e($reply->created_at->diffForHumans()); ?>.</li>
-						                    <li><a href="<?php echo e(route('profile.index', ['username' => $reply->user->username])); ?>">Like</a></li>
-						                    <li>4 likes</li>
+						                    <?php if($reply->user->id !== Auth::user()->id): ?>
+						                    <li><a href="<?php echo e(route('status.like', ['statusId' => $reply->id])); ?>">Like</a></li>
+					                        <li>4 likes</li>
+					                        <?php endif; ?>
 						                </ul>
 						            </div>
 						        </div>
