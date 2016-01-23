@@ -37,8 +37,8 @@
 					            <li><?php echo e($status->created_at->diffForHumans()); ?></li>
 					            <?php if($status->user->id !== AUTH::user()->id): ?>
 					            <li><a href="<?php echo e(route('status.like', ['statusId' => $status->id])); ?>">Like</a></li>
-					            <li>10 likes</li>
 					            <?php endif; ?>
+					            <li><?php echo e($status->likes->count()); ?> <?php echo e(str_plural('like', $status->likes->count())); ?></li>
 					        </ul>
 					 		
 					 		<?php foreach($status->replies as $reply): ?>
@@ -53,8 +53,8 @@
 						                    <li><?php echo e($reply->created_at->diffForHumans()); ?>.</li>
 						                    <?php if($reply->user->id !== Auth::user()->id): ?>
 						                    <li><a href="<?php echo e(route('status.like', ['statusId' => $reply->id])); ?>">Like</a></li>
-					                        <li>4 likes</li>
 					                        <?php endif; ?>
+					                        <li><?php echo e($reply->likes->count()); ?> <?php echo e(str_plural('like', $reply->likes->count())); ?></li>
 						                </ul>
 						            </div>
 						        </div>

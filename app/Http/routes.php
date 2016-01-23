@@ -96,6 +96,12 @@ Route::group(['middleware' => ['web']], function () {
 			'middleware' => ['auth'],
 		]);
 
+	Route::post('/friends/delete/{username}', [
+			'uses'	=> '\Chatty\Http\Controllers\FriendController@postDelete',
+			'as'	=> 'friend.delete',
+			'middleware' => ['auth'],
+		]);
+
 //STATUSES
 	Route::post('/status', [
 			'uses'	=> '\Chatty\Http\Controllers\StatusController@postStatus',

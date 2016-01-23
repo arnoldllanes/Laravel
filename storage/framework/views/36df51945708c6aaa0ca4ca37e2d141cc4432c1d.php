@@ -22,8 +22,10 @@
                             <ul class="list-inline">
                                 <!--Outputs the timestap it was created of the $status object creation time || WHAT IS diffForHumans?-->
                                 <li><?php echo e($status->created_at->diffForHumans()); ?></li>
-                                <li><a href="#">Like</a></li>
-                                <li>10 likes</li>
+                                <?php if($status->user->id !== Auth::user()->id): ?>
+                                    <li><a href="<?php echo e(route('status.like', ['statusId' => $status->id])); ?>">Like</a></li>
+                                <?php endif; ?>
+                                <li><?php echo e($status->likes->count()); ?> <?php echo e(str_plural('like', $status->likes->count())); ?></li>    
                             </ul>
                             
                             <?php foreach($status->replies as $reply): ?>
@@ -36,14 +38,16 @@
                                         <p><?php echo e($reply->body); ?></p>
                                         <ul class="list-inline">
                                             <li><?php echo e($reply->created_at->diffForHumans()); ?>.</li>
-                                            <li><a href="<?php echo e(route('profile.index', ['username' => $reply->user->username])); ?>">Like</a></li>
-                                            <li>4 likes</li>
+                                            <?php if($reply->user->id !== Auth::user()->id): ?>
+                                            <li><a href="<?php echo e(route('status.like', ['statusId' => $reply->id])); ?>">Like</a></li>
+                                            <?php endif; ?>
+                                            <li><?php echo e($reply->likes->count()); ?> <?php echo e(str_plural('like', $reply->likes->count())); ?></li>
                                         </ul>
                                     </div>
                                 </div>
                             <?php endforeach; ?>
 
-                            <?php if($authUserIsFriend || Auth::user()->id === $status->id): ?>
+                            <?php if($authUserIsFriend || Auth::user()->id === $status->user->id): ?>
                             <form role="form" action="<?php echo e(route('status.reply', ['statusId' =>$status->id])); ?>" method="post">
                                 <div class="form-group<?php echo e($errors->has("reply-{$status->id}") ? ' has-error' : ''); ?>">
                                     <textarea name="reply-<?php echo e($status->id); ?>" class="form-control" rows="2" placeholder="Reply to this status"></textarea>
@@ -66,14 +70,18 @@
     </div>
     <div class="col-lg-4 col-lg-offset-3">
             <?php if(Auth::user()->hasFriendRequestPending($user)): ?>
-            <p>Waiting for <?php echo e($user->getNameOrUsername()); ?> to accept your request.</p>
+                <p>Waiting for <?php echo e($user->getNameOrUsername()); ?> to accept your request.</p>
             <?php elseif(Auth::user()->hasFriendRequestReceived($user)): ?>
                 <a href="<?php echo e(route('friend.accept', ['username' => $user->username])); ?>" class="btn btn-primary">Accept Friend Request</a>
             <?php elseif(Auth::user()->isFriendsWith($user)): ?>
                 <p>You and <?php echo e($user->getNameOrUsername()); ?> are friends.</p>
+
+                <form action="<?php echo e(route('friend.delete', ['username' => $user->username])); ?>" method="POST">
+                    <input type="submit" value="Delete Friend" class="btn btn-primary">
+                    <input type="hidden" name="_token" value="<?php echo e(csrf_token()); ?>">
+                </form>
             <?php elseif(Auth::user()->id !== $user->id): ?>
                 <a href="<?php echo e(route('friend.add', ['username' => $user->username])); ?>" class="btn btn-primary">Add as friend</a>    
-
             <?php endif; ?>
 
             <h4><?php echo e($user->getFirstNameOrUsername()); ?>'s friends</h4>

@@ -99,6 +99,12 @@ class User extends Authenticatable
         $this->friendOf()->attach($user->id);
     }
 
+    public function deleteFriend(User $user)
+    {
+        $this->friendOf()->detach($user->id);
+        $this->friendsOfMine()->detach($user->id);
+    }
+
     public function acceptFriendRequest(User $user)
     {   
         $this->friendRequests()->where('id', $user->id)->first()->pivot->update([
@@ -113,10 +119,8 @@ class User extends Authenticatable
 
     public function hasLikedStatus(Status $status)
     {
-        return (bool) $status->likes
-            ->where('likeable_id', $status->id)
-            ->where('likeable_type', get_class($status))
-            ->where('user_id', $this->id)
-            ->count();
+        return (bool) $status->likes->where('user_id', $this->id)->count();
     }
+
+
 }

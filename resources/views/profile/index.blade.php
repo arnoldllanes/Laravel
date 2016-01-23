@@ -21,7 +21,11 @@
                             <p>{{ $status->body }}</p>
                             <ul class="list-inline">
                                 <!--Outputs the timestap it was created of the $status object creation time || WHAT IS diffForHumans?-->
-                                <li>{{ $status->created_at->diffForHumans() }}</li>    
+                                <li>{{ $status->created_at->diffForHumans() }}</li>
+                                @if ($status->user->id !== Auth::user()->id)
+                                    <li><a href="{{ route('status.like', ['statusId' => $status->id]) }}">Like</a></li>
+                                @endif
+                                <li>{{ $status->likes->count() }} {{ str_plural('like', $status->likes->count()) }}</li>    
                             </ul>
                             
                             @foreach ($status->replies as $reply)
@@ -36,8 +40,8 @@
                                             <li>{{ $reply->created_at->diffForHumans() }}.</li>
                                             @if ($reply->user->id !== Auth::user()->id)
                                             <li><a href="{{ route('status.like', ['statusId' => $reply->id]) }}">Like</a></li>
-                                            <li>4 likes</li>
                                             @endif
+                                            <li>{{ $reply->likes->count() }} {{ str_plural('like', $reply->likes->count()) }}</li>
                                         </ul>
                                     </div>
                                 </div>
@@ -66,14 +70,18 @@
     </div>
     <div class="col-lg-4 col-lg-offset-3">
             @if (Auth::user()->hasFriendRequestPending($user))
-            <p>Waiting for {{ $user->getNameOrUsername() }} to accept your request.</p>
+                <p>Waiting for {{ $user->getNameOrUsername() }} to accept your request.</p>
             @elseif (Auth::user()->hasFriendRequestReceived($user))
                 <a href="{{ route('friend.accept', ['username' => $user->username]) }}" class="btn btn-primary">Accept Friend Request</a>
             @elseif (Auth::user()->isFriendsWith($user))
                 <p>You and {{ $user->getNameOrUsername() }} are friends.</p>
+
+                <form action="{{ route('friend.delete', ['username' => $user->username]) }}" method="POST">
+                    <input type="submit" value="Delete Friend" class="btn btn-primary">
+                    <input type="hidden" name="_token" value="{{ csrf_token() }}">
+                </form>
             @elseif (Auth::user()->id !== $user->id)
                 <a href="{{ route('friend.add', ['username' => $user->username]) }}" class="btn btn-primary">Add as friend</a>    
-
             @endif
 
             <h4>{{ $user->getFirstNameOrUsername() }}'s friends</h4>
